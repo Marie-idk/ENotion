@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>Gabriel's Bright Dashboard</title>
     
-    <!-- Google Fonts: Nunito (Friendly & Round) -->
+    <!-- Google Fonts: Nunito (Friendly & Round - Great for readability) -->
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS -->
@@ -23,13 +23,15 @@
         :root {
             --sidebar-width: 260px;
             --primary: #4f46e5; /* Indigo 600 - Bright & Energetic */
-            --bg-page: #f0fdfa; /* Very light teal/mint background */
+            --bg-page: #f0fdfa; /* Very light teal/mint background - Calming */
         }
 
         body, html {
             background-color: var(--bg-page);
             font-family: 'Nunito', sans-serif;
             color: #334155;
+            /* Prevent bounce scrolling on mobile for a stable feel */
+            overscroll-behavior: none; 
         }
 
         /* Sidebar Styling - Bright & Clean */
@@ -38,14 +40,14 @@
             border-right: 1px solid #e2e8f0;
         }
 
-        /* Rainbow Gradient Text */
+        /* Rainbow Gradient Text - High Engagement */
         .rainbow-text {
             background: linear-gradient(90deg, #ef4444, #f97316, #eab308, #22c55e, #3b82f6, #8b5cf6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        /* Input Styling */
+        /* Input Styling - Large touch targets */
         .modern-input {
             width: 100%;
             background: #f8fafc;
@@ -77,7 +79,7 @@
             display: none;
         }
 
-        /* Custom Scrollbar */
+        /* Custom Scrollbar - Soft appearance */
         .scroller::-webkit-scrollbar {
             width: 8px;
         }
@@ -117,9 +119,9 @@
             <div class="bg-indigo-50 rounded-2xl p-4 border border-indigo-100">
                 <label class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest block mb-1">Current Date</label>
                 <div class="flex items-center justify-between">
-                    <button id="prev-date" class="p-1 text-indigo-400 hover:text-indigo-700 hover:bg-indigo-100 rounded-lg transition"><i data-lucide="chevron-left" class="w-6 h-6"></i></button>
+                    <button id="prev-date" class="p-1 text-indigo-400 hover:text-indigo-700 hover:bg-indigo-100 rounded-lg transition" aria-label="Previous Day"><i data-lucide="chevron-left" class="w-6 h-6"></i></button>
                     <input type="date" id="date-input" class="bg-transparent border-none text-indigo-900 font-extrabold text-lg text-center w-full focus:ring-0 cursor-pointer font-mono p-0">
-                    <button id="next-date" class="p-1 text-indigo-400 hover:text-indigo-700 hover:bg-indigo-100 rounded-lg transition"><i data-lucide="chevron-right" class="w-6 h-6"></i></button>
+                    <button id="next-date" class="p-1 text-indigo-400 hover:text-indigo-700 hover:bg-indigo-100 rounded-lg transition" aria-label="Next Day"><i data-lucide="chevron-right" class="w-6 h-6"></i></button>
                 </div>
                 <div id="date-pretty" class="text-center text-indigo-500 text-xs font-bold mt-1">Today</div>
             </div>
@@ -158,7 +160,7 @@
     <main class="flex-1 flex flex-col md:flex-row h-full overflow-hidden relative bg-white">
         
         <!-- MIDDLE COLUMN: Input Form -->
-        <!-- Will grow to w-full if timeline is hidden -->
+        <!-- Logic: Default 5/12 width. When timeline closes, this becomes flex-1 to fill space. -->
         <section id="editor-panel" class="w-full md:w-5/12 h-full border-r border-slate-100 bg-white flex flex-col overflow-y-auto scroller z-10 transition-all duration-300">
             <div class="p-8 pb-32 max-w-2xl mx-auto w-full">
                 <div class="flex justify-between items-center mb-8">
@@ -302,6 +304,7 @@
         import { getAuth, onAuthStateChanged, signInAnonymously, signInWithCustomToken } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
         import { getFirestore, collection, addDoc, deleteDoc, updateDoc, setDoc, doc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 
+        // --- GLOBAL STATE ---
         const state = {
             user: null,
             entriesUser: [],
@@ -313,9 +316,95 @@
             timelineVisible: true
         };
 
-        const { jsPDF } = window.jspdf;
+        // --- GLOBAL FUNCTIONS (Defined immediately for UI Responsiveness) ---
 
-        // Init
+        // 1. Toggle Timeline - Fixed robust class toggling
+        window.toggleTimeline = (show) => {
+            state.timelineVisible = show;
+            const timelinePanel = document.getElementById('timeline-panel');
+            const editorPanel = document.getElementById('editor-panel');
+            const btnShow = document.getElementById('btn-show-timeline');
+
+            if (show) {
+                // Show Timeline
+                timelinePanel.classList.remove('hidden');
+                timelinePanel.classList.add('flex'); // Explicitly add flex to ensure layout works
+                
+                // Shrink Editor
+                editorPanel.classList.remove('flex-1'); // Remove grow
+                editorPanel.classList.add('md:w-5/12'); // Add width constraint
+                
+                btnShow.classList.add('hidden');
+            } else {
+                // Hide Timeline
+                timelinePanel.classList.add('hidden');
+                timelinePanel.classList.remove('flex'); // Explicitly remove flex to ensure it hides
+                
+                // Expand Editor
+                editorPanel.classList.remove('md:w-5/12'); // Remove constraint
+                editorPanel.classList.add('flex-1'); // Allow grow to fill space
+                
+                btnShow.classList.remove('hidden');
+            }
+            // Re-render icons after layout change
+            if(window.lucide) window.lucide.createIcons();
+        };
+
+        // 2. Set View Mode
+        window.setView = (mode) => {
+            state.viewMode = mode;
+            // If switching view mode, ensure timeline is open so they can see results
+            if(!state.timelineVisible) toggleTimeline(true);
+            renderApp();
+        };
+
+        // 3. Edit Entry
+        window.editEntry = (id) => {
+            const entry = state.entries.find(e => e.id === id);
+            if(!entry) return;
+            state.editingId = id;
+            
+            if (state.viewMode === 'all') state.viewMode = 'daily';
+
+            state.date = entry.date;
+            document.getElementById('date-input').value = entry.date;
+            
+            const typeRadio = document.querySelector(`input[name="entryType"][value="${entry.type||'daily'}"]`);
+            if(typeRadio) typeRadio.checked = true;
+            
+            document.getElementById('input-subject').value = entry.subject;
+            document.getElementById('input-category').value = entry.category;
+            document.getElementById('input-unit').value = entry.unit;
+            document.getElementById('input-topic').value = entry.topic;
+            document.getElementById('input-assignments').value = entry.assignments;
+            document.getElementById('input-notes').value = entry.notes;
+
+            document.getElementById('form-title').innerHTML = `<span class="bg-amber-100 text-amber-600 p-2 rounded-xl"><i data-lucide="pencil" class="w-6 h-6"></i></span> Edit Entry`;
+            document.getElementById('save-btn').innerHTML = `<span>Update Entry</span>`;
+            document.getElementById('cancel-edit-btn').classList.remove('hidden');
+            
+            // Scroll to form
+            document.getElementById('editor-panel').scrollTo({ top: 0, behavior: 'smooth' });
+            renderApp();
+        };
+
+        // 4. Delete Entry
+        window.deleteEntry = async (id) => {
+            if(confirm("Remove this entry?")) {
+                // Optimistic UI update could go here, but we rely on Firestore listener
+                try {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'daily_journal', id)).catch(e => console.log('public delete skipped'));
+                    if(state.user) {
+                        await deleteDoc(doc(db, 'artifacts', appId, 'users', state.user.uid, 'daily_journal', id)).catch(e => console.log('private delete skipped'));
+                    }
+                } catch(e) {
+                    console.error("Delete failed", e);
+                }
+            }
+        };
+
+
+        // --- FIREBASE INIT ---
         const firebaseConfig = JSON.parse(__firebase_config);
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -335,9 +424,11 @@
         }
         initAuth();
 
-        // MERGE LOGIC
+        // --- APP LOGIC ---
+
         function updateCombinedEntries() {
             const all = [...state.entriesUser, ...state.entriesPublic];
+            // Remove duplicates (prefer user copy if conflict, though logic here just takes unique by ID)
             const unique = Array.from(new Map(all.map(item => [item.id, item])).values());
 
             unique.sort((a, b) => {
@@ -345,7 +436,7 @@
                 const dateB = new Date(b.date);
                 if (dateA > dateB) return -1;
                 if (dateA < dateB) return 1;
-                return (a.order || 0) - (b.order || 0);
+                return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
             });
 
             state.entries = unique;
@@ -360,37 +451,17 @@
                 onSnapshot(privateRef, (snapshot) => {
                     state.entriesUser = snapshot.docs.map(d => ({ id: d.id, ...d.data(), _source: 'private' }));
                     updateCombinedEntries();
-                }, (err) => {});
+                }, (err) => console.error(err));
 
                 const publicRef = collection(db, 'artifacts', appId, 'public', 'data', 'daily_journal');
                 onSnapshot(publicRef, (snapshot) => {
                     state.entriesPublic = snapshot.docs.map(d => ({ id: d.id, ...d.data(), _source: 'public' }));
                     updateCombinedEntries();
-                }, (err) => {});
+                }, (err) => console.error(err));
             } else {
                 renderApp();
             }
         });
-
-        // Timeline Toggle Logic
-        window.toggleTimeline = (show) => {
-            state.timelineVisible = show;
-            const timelinePanel = document.getElementById('timeline-panel');
-            const editorPanel = document.getElementById('editor-panel');
-            const btnShow = document.getElementById('btn-show-timeline');
-
-            if (show) {
-                timelinePanel.classList.remove('hidden');
-                editorPanel.classList.remove('flex-1'); // Reset to default width
-                editorPanel.classList.add('md:w-5/12');
-                btnShow.classList.add('hidden');
-            } else {
-                timelinePanel.classList.add('hidden');
-                editorPanel.classList.remove('md:w-5/12');
-                editorPanel.classList.add('flex-1'); // Expand to fill
-                btnShow.classList.remove('hidden');
-            }
-        };
 
         // Styles Map (Bright & Cheerful)
         const getSubjectConfig = (subj) => {
@@ -402,16 +473,20 @@
                 'Reading': { bg: 'bg-teal-100', text: 'text-teal-600', border: 'border-teal-500', icon: 'book' },
                 'Art': { bg: 'bg-purple-100', text: 'text-purple-600', border: 'border-purple-500', icon: 'palette' },
                 'Music': { bg: 'bg-rose-100', text: 'text-rose-600', border: 'border-rose-500', icon: 'music' },
-                'Technology': { bg: 'bg-cyan-100', text: 'text-cyan-600', border: 'border-cyan-500', icon: 'monitor' }
+                'Technology': { bg: 'bg-cyan-100', text: 'text-cyan-600', border: 'border-cyan-500', icon: 'monitor' },
+                'Geography': { bg: 'bg-lime-100', text: 'text-lime-600', border: 'border-lime-500', icon: 'globe' },
+                'PE': { bg: 'bg-orange-100', text: 'text-orange-600', border: 'border-orange-500', icon: 'activity' },
+                'Life Skills': { bg: 'bg-indigo-100', text: 'text-indigo-600', border: 'border-indigo-500', icon: 'heart' }
             };
             return config[subj] || { bg: 'bg-slate-100', text: 'text-slate-600', border: 'border-slate-500', icon: 'circle' };
         };
 
         // Date Logic
-        document.getElementById('prev-date').addEventListener('click', () => changeDate(-1));
-        document.getElementById('next-date').addEventListener('click', () => changeDate(1));
         const dateInput = document.getElementById('date-input');
         dateInput.value = state.date;
+        
+        document.getElementById('prev-date').addEventListener('click', () => changeDate(-1));
+        document.getElementById('next-date').addEventListener('click', () => changeDate(1));
         dateInput.addEventListener('change', (e) => { state.date = e.target.value; renderApp(); });
 
         function changeDate(days) {
@@ -422,14 +497,7 @@
             renderApp();
         }
 
-        window.setView = (mode) => {
-            state.viewMode = mode;
-            // If switching view mode, ensure timeline is open so they can see results
-            if(!state.timelineVisible) toggleTimeline(true);
-            renderApp();
-        };
-
-        // Form
+        // Form Submit
         document.getElementById('journal-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             if(!state.user) return;
@@ -470,41 +538,10 @@
 
             } catch(err) {
                 console.error(err);
-                alert("Error: " + err.message);
             }
         });
 
-        // Edit / Delete
-        window.editEntry = (id) => {
-            const entry = state.entries.find(e => e.id === id);
-            if(!entry) return;
-            state.editingId = id;
-            
-            if (state.viewMode === 'all') state.viewMode = 'daily';
-
-            state.date = entry.date;
-            dateInput.value = entry.date;
-            
-            const typeRadio = document.querySelector(`input[name="entryType"][value="${entry.type||'daily'}"]`);
-            if(typeRadio) typeRadio.checked = true;
-            
-            document.getElementById('input-subject').value = entry.subject;
-            document.getElementById('input-category').value = entry.category;
-            document.getElementById('input-unit').value = entry.unit;
-            document.getElementById('input-topic').value = entry.topic;
-            document.getElementById('input-assignments').value = entry.assignments;
-            document.getElementById('input-notes').value = entry.notes;
-
-            document.getElementById('form-title').innerHTML = `<span class="bg-amber-100 text-amber-600 p-2 rounded-xl"><i data-lucide="pencil" class="w-6 h-6"></i></span> Edit Entry`;
-            document.getElementById('save-btn').innerHTML = `<span>Update Entry</span>`;
-            document.getElementById('cancel-edit-btn').classList.remove('hidden');
-            
-            // If timeline was hidden, we probably need to keep it hidden or user pref. 
-            // But we do need to see the form.
-            document.getElementById('editor-panel').scrollTo({ top: 0, behavior: 'smooth' });
-            renderApp();
-        };
-
+        // Cancel Edit
         document.getElementById('cancel-edit-btn').addEventListener('click', () => {
             state.editingId = null;
             document.getElementById('input-topic').value = '';
@@ -515,29 +552,31 @@
             document.getElementById('cancel-edit-btn').classList.add('hidden');
         });
 
-        window.deleteEntry = async (id) => {
-            if(confirm("Remove this entry?")) {
-                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'daily_journal', id)).catch(()=>{});
-                if(state.user) {
-                    await deleteDoc(doc(db, 'artifacts', appId, 'users', state.user.uid, 'daily_journal', id)).catch(()=>{});
-                }
-            }
-        };
-
-        // Export
+        // Export PDF
         const btnPdf = document.getElementById('btn-pdf');
         function updateExportButton() {
             btnPdf.classList.toggle('hidden', state.entries.length === 0);
         }
+        
         btnPdf.addEventListener('click', () => {
+            if (!window.jspdf) {
+                alert("PDF Generator is still loading. Please try again in a moment.");
+                return;
+            }
+            const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            const date = new Date().toLocaleDateString();
+            const dateStr = new Date().toLocaleDateString();
             
-            doc.setFontSize(16);
-            doc.text(`Homeschool Log: Gabriel Mendoza`, 14, 20);
-            doc.setFontSize(10);
-            doc.text(`Report Generated: ${date}`, 14, 28);
+            // Header
+            doc.setFontSize(18);
+            doc.setTextColor(79, 70, 229); // Indigo
+            doc.text(`Gabriel Mendoza's Learning Log`, 14, 20);
             
+            doc.setFontSize(11);
+            doc.setTextColor(100);
+            doc.text(`Generated: ${dateStr}`, 14, 28);
+            
+            // Data
             const data = (state.viewMode === 'daily' ? state.entries.filter(e => e.date === state.date) : state.entries).map(e => [
                 e.date, e.subject, e.category, e.topic, e.assignments||'-', e.notes||'-'
             ]);
@@ -547,13 +586,14 @@
                 head: [['Date', 'Subject', 'Type', 'Topic', 'Assign', 'Notes']], 
                 body: data,
                 theme: 'grid',
-                headStyles: { fillColor: [79, 70, 229] } // Indigo-600
+                headStyles: { fillColor: [79, 70, 229] },
+                styles: { fontSize: 9 }
             });
             
             doc.save('Gabriel_Log.pdf');
         });
 
-        // Render
+        // Render Function
         function renderApp() {
             // Update Active Nav
             const navIds = ['nav-daily', 'nav-weekly', 'nav-unit', 'nav-all'];
@@ -569,8 +609,13 @@
 
             // Update Header Date
             const d = new Date(state.date);
-            const pretty = d.toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric', timeZone: 'UTC' });
-            document.getElementById('date-pretty').innerText = state.viewMode === 'daily' ? pretty : state.viewMode.toUpperCase();
+            // Fix timezone issue by using UTC pieces to reconstruct or just simple string split
+            // Simpler approach for visual only:
+            const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+            const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            const pretty = `${days[d.getUTCDay()]}, ${months[d.getUTCMonth()]} ${d.getUTCDate()}`;
+            
+            document.getElementById('date-pretty').innerText = state.viewMode === 'daily' ? pretty : state.viewMode.toUpperCase() + ' VIEW';
 
             document.getElementById('feed-subtitle').innerText = state.viewMode === 'all' 
                 ? "All History" 
@@ -662,9 +707,10 @@
                     `;
                 }).join('');
             }
-            lucide.createIcons();
+            if(window.lucide) window.lucide.createIcons();
         }
 
+        // Initial Render
         renderApp();
     </script>
 </body>
