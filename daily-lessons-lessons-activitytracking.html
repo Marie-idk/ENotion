@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>Rainbow Daily Log</title>
+    <title>Gabriel's Bright Dashboard</title>
     
-    <!-- Google Fonts: Outfit -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Nunito (Friendly & Round) -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -20,210 +20,279 @@
 
     <!-- Custom Styles -->
     <style>
-        /* --- Mobile Tuning Tokens --- */
         :root {
-            --container-max-width: 1152px; /* max-w-6xl */
-            --card-radius: 1rem;
-            --input-radius: 0.75rem;
-            --tap-target: 44px; /* Minimum touch size */
-            --font-body: clamp(0.9rem, 2vw, 1rem);
-            --font-title: clamp(1.25rem, 4vw, 1.5rem);
+            --sidebar-width: 260px;
+            --primary: #4f46e5; /* Indigo 600 - Bright & Energetic */
+            --bg-page: #f0fdfa; /* Very light teal/mint background */
         }
 
         body, html {
-            background-color: #f8fafc;
-            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-page);
+            font-family: 'Nunito', sans-serif;
             color: #334155;
-            -webkit-font-smoothing: antialiased;
         }
 
-        /* Modern Card Style */
-        .pro-card {
-            background: white;
-            border-radius: var(--card-radius);
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        /* Sidebar Styling - Bright & Clean */
+        .sidebar {
+            background: #ffffff;
+            border-right: 1px solid #e2e8f0;
         }
 
-        /* Form Controls */
-        .form-input {
+        /* Rainbow Gradient Text */
+        .rainbow-text {
+            background: linear-gradient(90deg, #ef4444, #f97316, #eab308, #22c55e, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Input Styling */
+        .modern-input {
             width: 100%;
-            border-radius: var(--input-radius);
-            border: 1px solid #e2e8f0;
-            padding: 0.75rem;
-            font-size: 16px; /* Prevents iOS zoom */
-            font-weight: 500;
-            color: #334155;
             background: #f8fafc;
-            min-height: var(--tap-target);
+            border: 2px solid #cbd5e1;
+            border-radius: 1rem;
+            padding: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            color: #334155;
         }
-        .form-input:focus {
+        .modern-input:focus {
             outline: none;
-            border-color: #8b5cf6;
             background: white;
-            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
         }
 
-        /* Rainbow Strip */
-        .rainbow-strip {
-            height: 4px;
-            width: 100%;
-            background: linear-gradient(90deg, #ef4444, #f97316, #eab308, #22c55e, #3b82f6, #8b5cf6, #ec4899);
+        /* Timeline Connector */
+        .timeline-line {
+            position: absolute;
+            left: 1.5rem;
+            top: 2rem;
+            bottom: -2rem;
+            width: 3px;
+            background: #e2e8f0;
+            z-index: 0;
+        }
+        .timeline-item:last-child .timeline-line {
+            display: none;
+        }
+
+        /* Custom Scrollbar */
+        .scroller::-webkit-scrollbar {
+            width: 8px;
+        }
+        .scroller::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .scroller::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
         }
         
-        /* Utility */
-        .touch-target {
-            min-height: var(--tap-target);
-            min-width: var(--tap-target);
+        /* Animations */
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
-<body class="pb-20">
+<body class="h-screen overflow-hidden flex flex-col md:flex-row">
 
-    <!-- Navbar -->
-    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 mb-8">
-        <div class="rainbow-strip"></div>
-        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="bg-indigo-600 text-white p-2 rounded-lg">
-                    <i data-lucide="book-open" class="w-5 h-5"></i>
+    <!-- SIDEBAR (Left Panel) -->
+    <aside class="sidebar w-full md:w-[260px] md:h-screen flex flex-col shrink-0 overflow-y-auto z-30 shadow-sm relative">
+        <!-- Header -->
+        <div class="p-6">
+            <h1 class="text-3xl font-extrabold tracking-tight flex items-center gap-2 rainbow-text pb-1">
+                <i data-lucide="sun" class="w-8 h-8 text-amber-500"></i>
+                Gabriel's Log
+            </h1>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider ml-1">Daily Tracker</p>
+        </div>
+
+        <!-- Date Picker Widget -->
+        <div class="px-6 pb-6">
+            <div class="bg-indigo-50 rounded-2xl p-4 border border-indigo-100">
+                <label class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest block mb-1">Current Date</label>
+                <div class="flex items-center justify-between">
+                    <button id="prev-date" class="p-1 text-indigo-400 hover:text-indigo-700 hover:bg-indigo-100 rounded-lg transition"><i data-lucide="chevron-left" class="w-6 h-6"></i></button>
+                    <input type="date" id="date-input" class="bg-transparent border-none text-indigo-900 font-extrabold text-lg text-center w-full focus:ring-0 cursor-pointer font-mono p-0">
+                    <button id="next-date" class="p-1 text-indigo-400 hover:text-indigo-700 hover:bg-indigo-100 rounded-lg transition"><i data-lucide="chevron-right" class="w-6 h-6"></i></button>
                 </div>
-                <div class="flex flex-col">
-                    <h1 class="text-xl font-bold text-slate-800 leading-none">Gabriel's Log</h1>
-                    <span id="connection-status" class="text-[10px] font-bold text-amber-500 uppercase tracking-wider mt-0.5">Connecting...</span>
-                </div>
-            </div>
-            
-            <div class="flex items-center gap-4">
-                <div id="desktop-nav" class="hidden md:flex bg-slate-100 p-1 rounded-lg">
-                    <!-- Nav injected via JS -->
-                </div>
-                <button id="btn-pdf" class="hidden flex items-center gap-2 px-3 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 font-medium text-sm touch-target">
-                    <i data-lucide="download" class="w-4 h-4"></i> Report
-                </button>
+                <div id="date-pretty" class="text-center text-indigo-500 text-xs font-bold mt-1">Today</div>
             </div>
         </div>
-        <!-- Mobile Tabs -->
-        <div id="mobile-nav" class="md:hidden flex border-t border-slate-200"></div>
-    </nav>
 
-    <!-- Main Grid Layout -->
-    <main class="max-w-6xl mx-auto px-6">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            
-            <!-- LEFT PANEL: Editor (Col Span 4) -->
-            <div id="editor-panel" class="lg:col-span-4 lg:sticky lg:top-24 space-y-6">
+        <!-- Navigation -->
+        <nav class="flex-1 px-4 space-y-2">
+            <button onclick="setView('daily')" id="nav-daily" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-white bg-indigo-500 shadow-md shadow-indigo-200">
+                <i data-lucide="layout-grid" class="w-5 h-5"></i> Daily View
+            </button>
+            <button onclick="setView('weekly')" id="nav-weekly" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-slate-500 hover:bg-indigo-50 hover:text-indigo-600">
+                <i data-lucide="calendar" class="w-5 h-5"></i> Weekly
+            </button>
+            <button onclick="setView('unit')" id="nav-unit" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-slate-500 hover:bg-indigo-50 hover:text-indigo-600">
+                <i data-lucide="layers" class="w-5 h-5"></i> Units
+            </button>
+            <button onclick="setView('all')" id="nav-all" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-slate-500 hover:bg-indigo-50 hover:text-indigo-600">
+                <i data-lucide="history" class="w-5 h-5"></i> History
+            </button>
+
+            <!-- Re-open Timeline Button (Hidden by default) -->
+            <button onclick="toggleTimeline(true)" id="btn-show-timeline" class="hidden w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-emerald-600 bg-emerald-50 border-2 border-emerald-100 hover:bg-emerald-100 mt-6">
+                <i data-lucide="panel-right-open" class="w-5 h-5"></i> Show Timeline
+            </button>
+        </nav>
+
+        <!-- Footer Actions -->
+        <div class="p-6">
+            <button id="btn-pdf" class="hidden w-full flex items-center justify-center gap-2 px-4 py-4 bg-slate-800 text-white rounded-xl hover:bg-slate-700 font-bold text-sm transition-all shadow-lg shadow-slate-300">
+                <i data-lucide="download" class="w-4 h-4"></i> Export PDF
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex flex-col md:flex-row h-full overflow-hidden relative bg-white">
+        
+        <!-- MIDDLE COLUMN: Input Form -->
+        <!-- Will grow to w-full if timeline is hidden -->
+        <section id="editor-panel" class="w-full md:w-5/12 h-full border-r border-slate-100 bg-white flex flex-col overflow-y-auto scroller z-10 transition-all duration-300">
+            <div class="p-8 pb-32 max-w-2xl mx-auto w-full">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-3xl font-extrabold text-slate-800 flex items-center gap-3" id="form-title">
+                        <span class="bg-indigo-100 text-indigo-600 p-2 rounded-xl"><i data-lucide="pen-tool" class="w-6 h-6"></i></span>
+                        New Entry
+                    </h2>
+                    <button id="cancel-edit-btn" class="hidden px-4 py-2 bg-rose-50 text-rose-500 rounded-xl text-xs font-bold hover:bg-rose-100 border border-rose-100">Cancel Edit</button>
+                </div>
+
+                <form id="journal-form" class="space-y-6">
+                    
+                    <!-- Entry Type Pills -->
+                    <div class="flex gap-3 p-1.5 bg-slate-100 rounded-2xl">
+                        <label class="flex-1 cursor-pointer group">
+                            <input type="radio" name="entryType" value="daily" class="peer hidden" checked>
+                            <div class="text-center py-3 text-sm font-bold text-slate-400 rounded-xl peer-checked:bg-white peer-checked:text-indigo-600 peer-checked:shadow-sm transition-all group-hover:text-slate-600">Daily</div>
+                        </label>
+                        <label class="flex-1 cursor-pointer group">
+                            <input type="radio" name="entryType" value="weekly" class="peer hidden">
+                            <div class="text-center py-3 text-sm font-bold text-slate-400 rounded-xl peer-checked:bg-white peer-checked:text-indigo-600 peer-checked:shadow-sm transition-all group-hover:text-slate-600">Weekly</div>
+                        </label>
+                        <label class="flex-1 cursor-pointer group">
+                            <input type="radio" name="entryType" value="unit" class="peer hidden">
+                            <div class="text-center py-3 text-sm font-bold text-slate-400 rounded-xl peer-checked:bg-white peer-checked:text-indigo-600 peer-checked:shadow-sm transition-all group-hover:text-slate-600">Unit</div>
+                        </label>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-5">
+                        <div>
+                            <label class="text-[11px] font-extrabold text-slate-400 uppercase mb-2 block ml-1">Subject</label>
+                            <select id="input-subject" class="modern-input cursor-pointer">
+                                <option value="Math">Math</option>
+                                <option value="Language Arts">Language Arts</option>
+                                <option value="Science">Science</option>
+                                <option value="History">History</option>
+                                <option value="Geography">Geography</option>
+                                <option value="Art">Art</option>
+                                <option value="Music">Music</option>
+                                <option value="PE">PE</option>
+                                <option value="Reading">Reading</option>
+                                <option value="Technology">Technology</option>
+                                <option value="Life Skills">Life Skills</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-extrabold text-slate-400 uppercase mb-2 block ml-1">Type</label>
+                            <input id="input-category" list="category-list" class="modern-input" placeholder="Lesson..." value="Lesson">
+                            <datalist id="category-list">
+                                <option value="Worksheet"></option>
+                                <option value="Lesson"></option>
+                                <option value="Project"></option>
+                                <option value="Quiz"></option>
+                                <option value="Reading"></option>
+                            </datalist>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-[11px] font-extrabold text-slate-400 uppercase mb-2 block ml-1">Unit / Module</label>
+                        <input type="text" id="input-unit" class="modern-input" placeholder="e.g. Solar System">
+                    </div>
+
+                    <div>
+                        <label class="text-[11px] font-extrabold text-slate-400 uppercase mb-2 block ml-1">Description</label>
+                        <textarea id="input-topic" class="modern-input min-h-[120px] resize-none leading-relaxed" placeholder="What was learned today?" required></textarea>
+                    </div>
+
+                    <div class="bg-indigo-50/50 p-5 rounded-2xl space-y-5 border border-indigo-50">
+                        <div>
+                            <label class="text-[11px] font-extrabold text-indigo-400 uppercase mb-2 block flex items-center gap-1 ml-1">
+                                <i data-lucide="check-square" class="w-3 h-3"></i> Assignments
+                            </label>
+                            <input type="text" id="input-assignments" class="modern-input border-indigo-100 focus:border-indigo-500" placeholder="e.g. Page 42 #1-10">
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-extrabold text-indigo-400 uppercase mb-2 block flex items-center gap-1 ml-1">
+                                <i data-lucide="sticky-note" class="w-3 h-3"></i> Notes
+                            </label>
+                            <input type="text" id="input-notes" class="modern-input border-indigo-100 focus:border-indigo-500" placeholder="Observations...">
+                        </div>
+                    </div>
+
+                    <button type="submit" id="save-btn" class="w-full bg-indigo-600 text-white font-extrabold py-5 rounded-2xl hover:bg-indigo-700 transition-all active:scale-95 shadow-xl shadow-indigo-200 flex items-center justify-center gap-3 text-lg">
+                        <i data-lucide="plus-circle" class="w-6 h-6"></i>
+                        <span>Add Entry</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- RIGHT COLUMN: Feed -->
+        <!-- Toggleable ID="timeline-panel" -->
+        <section id="timeline-panel" class="flex-1 h-full bg-slate-50/80 flex flex-col overflow-hidden transition-all duration-300 border-l border-slate-200">
+            <!-- Feed Header -->
+            <div class="h-20 border-b border-slate-200 bg-white flex items-center px-6 justify-between shrink-0">
+                <div class="flex items-center gap-3">
+                     <div class="bg-emerald-100 text-emerald-600 p-2 rounded-lg">
+                        <i data-lucide="list-checks" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800 leading-none" id="feed-title">Today's Timeline</h2>
+                        <p class="text-[11px] text-slate-400 font-bold uppercase mt-1" id="feed-subtitle">Viewing entries</p>
+                    </div>
+                </div>
                 
-                <!-- Date Card -->
-                <div class="pro-card p-4 flex items-center justify-between">
-                    <button id="prev-date" class="p-2 hover:bg-slate-100 rounded-lg text-slate-500 touch-target"><i data-lucide="chevron-left" class="w-6 h-6"></i></button>
-                    <div class="text-center">
-                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Viewing Date</div>
-                        <input type="date" id="date-input" class="text-center font-bold text-lg text-slate-800 bg-transparent border-none focus:ring-0 p-0 cursor-pointer touch-target">
+                <div class="flex items-center gap-3">
+                     <!-- Stats pill -->
+                    <div class="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-200" id="daily-count">
+                        0
                     </div>
-                    <button id="next-date" class="p-2 hover:bg-slate-100 rounded-lg text-slate-500 touch-target"><i data-lucide="chevron-right" class="w-6 h-6"></i></button>
-                </div>
-
-                <!-- Form Card -->
-                <div class="pro-card p-6 border-indigo-100 ring-4 ring-indigo-50/30">
-                    <div class="flex justify-between items-center mb-5 border-b border-indigo-50 pb-3">
-                        <h2 class="font-bold text-indigo-700 flex items-center gap-2">
-                            <i data-lucide="pen-tool" class="w-5 h-5"></i>
-                            <span id="form-title">New Entry</span>
-                        </h2>
-                        <button id="cancel-edit-btn" class="hidden text-xs font-bold text-red-500 bg-red-50 px-3 py-2 rounded hover:bg-red-100">Cancel</button>
-                    </div>
-
-                    <form id="journal-form" class="space-y-4">
-                        <!-- Type Switcher -->
-                        <div class="grid grid-cols-3 gap-1 bg-slate-100 p-1 rounded-xl">
-                             <label class="cursor-pointer">
-                                <input type="radio" name="entryType" value="daily" class="peer hidden" checked>
-                                <div class="text-center py-3 text-xs font-bold text-slate-500 rounded-lg peer-checked:bg-white peer-checked:text-indigo-600 peer-checked:shadow-sm transition-all touch-target flex items-center justify-center">Daily</div>
-                            </label>
-                            <label class="cursor-pointer">
-                                <input type="radio" name="entryType" value="weekly" class="peer hidden">
-                                <div class="text-center py-3 text-xs font-bold text-slate-500 rounded-lg peer-checked:bg-white peer-checked:text-indigo-600 peer-checked:shadow-sm transition-all touch-target flex items-center justify-center">Weekly</div>
-                            </label>
-                            <label class="cursor-pointer">
-                                <input type="radio" name="entryType" value="unit" class="peer hidden">
-                                <div class="text-center py-3 text-xs font-bold text-slate-500 rounded-lg peer-checked:bg-white peer-checked:text-indigo-600 peer-checked:shadow-sm transition-all touch-target flex items-center justify-center">Unit</div>
-                            </label>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="text-xs font-bold text-slate-400 uppercase ml-1">Subject</label>
-                                <select id="input-subject" class="form-input mt-1">
-                                    <option value="Math">Math</option>
-                                    <option value="Language Arts">Language Arts</option>
-                                    <option value="Science">Science</option>
-                                    <option value="History">History</option>
-                                    <option value="Geography">Geography</option>
-                                    <option value="Art">Art</option>
-                                    <option value="Music">Music</option>
-                                    <option value="PE">PE</option>
-                                    <option value="Reading">Reading</option>
-                                    <option value="Technology">Technology</option>
-                                    <option value="Life Skills">Life Skills</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-slate-400 uppercase ml-1">Type</label>
-                                <input id="input-category" list="category-list" class="form-input mt-1" placeholder="Lesson..." value="Lesson">
-                                <datalist id="category-list">
-                                    <option value="Worksheet"></option>
-                                    <option value="Lesson"></option>
-                                    <option value="Project"></option>
-                                    <option value="Quiz"></option>
-                                    <option value="Reading"></option>
-                                </datalist>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="text-xs font-bold text-slate-400 uppercase ml-1">Unit / Module</label>
-                            <input type="text" id="input-unit" class="form-input mt-1" placeholder="e.g. Solar System">
-                        </div>
-
-                        <div>
-                            <label class="text-xs font-bold text-slate-400 uppercase ml-1">Activity Description</label>
-                            <textarea id="input-topic" class="form-input mt-1 min-h-[100px] resize-none" placeholder="What was accomplished?" required></textarea>
-                        </div>
-
-                        <div>
-                            <label class="text-xs font-bold text-slate-400 uppercase ml-1">Assignments</label>
-                            <input type="text" id="input-assignments" class="form-input mt-1" placeholder="e.g. Page 42 #1-10">
-                        </div>
-
-                         <div>
-                            <label class="text-xs font-bold text-slate-400 uppercase ml-1">Notes</label>
-                            <input type="text" id="input-notes" class="form-input mt-1" placeholder="Observations...">
-                        </div>
-
-                        <button type="submit" id="save-btn" class="w-full bg-slate-900 text-white font-bold py-4 rounded-xl hover:bg-slate-800 transition-transform active:scale-95 flex items-center justify-center gap-2 shadow-lg mt-2 touch-target">
-                            <i data-lucide="plus" class="w-5 h-5"></i>
-                            <span>Save Entry</span>
-                        </button>
-                    </form>
+                    <!-- Close Button -->
+                    <button onclick="toggleTimeline(false)" class="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors" title="Close Timeline">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
                 </div>
             </div>
 
-            <!-- RIGHT PANEL: Feed (Col Span 8) -->
-            <div id="view-container-wrapper" class="lg:col-span-8">
-                 <div id="view-container" class="space-y-6">
-                    <!-- Default state is NOT loading. It's empty. -->
-                    <!-- This prevents "stuck on loading" if JS fails -->
-                    <div class="pro-card p-12 text-center border-dashed border-2 border-slate-200 shadow-none">
-                        <div class="text-slate-300 mb-2"><i data-lucide="cloud-off" class="w-12 h-12 mx-auto"></i></div>
-                        <h3 class="text-slate-600 font-bold">Waiting for connection...</h3>
-                        <p class="text-slate-400 text-sm">If this stays too long, check your internet.</p>
+            <!-- Feed Content -->
+            <div id="view-container" class="flex-1 overflow-y-auto scroller p-6 space-y-0 relative">
+                <!-- Timeline items injected here -->
+                
+                <!-- Empty State -->
+                <div class="h-full flex flex-col items-center justify-center text-center opacity-60">
+                    <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mb-4 text-slate-300 shadow-sm border border-slate-100">
+                        <i data-lucide="sparkles" class="w-8 h-8"></i>
                     </div>
+                    <h3 class="font-bold text-slate-600 text-lg">Fresh Page</h3>
+                    <p class="text-sm text-slate-400 max-w-xs mx-auto mt-1">Ready for today's adventures. Add an entry to start the timeline!</p>
                 </div>
             </div>
+        </section>
 
-        </div>
     </main>
 
     <!-- Firebase -->
@@ -239,9 +308,8 @@
             entries: [],
             viewMode: 'daily',
             date: new Date().toISOString().split('T')[0],
-            loading: false, // CHANGED: Default is FALSE so UI never blocks
             editingId: null,
-            status: 'init'
+            timelineVisible: true
         };
 
         const { jsPDF } = window.jspdf;
@@ -253,22 +321,6 @@
         const db = getFirestore(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
-        // STATUS UI UPDATER
-        function updateStatus(status) {
-            const el = document.getElementById('connection-status');
-            if(!el) return;
-            if(status === 'connected') {
-                el.innerText = 'Connected';
-                el.className = 'text-[10px] font-bold text-emerald-500 uppercase tracking-wider mt-0.5';
-            } else if (status === 'error') {
-                el.innerText = 'Offline / Error';
-                el.className = 'text-[10px] font-bold text-red-500 uppercase tracking-wider mt-0.5';
-            } else {
-                el.innerText = 'Connecting...';
-                el.className = 'text-[10px] font-bold text-amber-500 uppercase tracking-wider mt-0.5';
-            }
-        }
-
         async function initAuth() {
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -278,20 +330,15 @@
                 }
             } catch (error) {
                 console.error("Auth Error:", error);
-                updateStatus('error');
             }
         }
         initAuth();
 
         // MERGE LOGIC
         function updateCombinedEntries() {
-            // Combine both sources
             const all = [...state.entriesUser, ...state.entriesPublic];
-            
-            // Deduplicate by ID just in case
             const unique = Array.from(new Map(all.map(item => [item.id, item])).values());
 
-            // Sort: Date DESC, then Order ASC
             unique.sort((a, b) => {
                 const dateA = new Date(a.date);
                 const dateB = new Date(b.date);
@@ -301,7 +348,6 @@
             });
 
             state.entries = unique;
-            updateStatus('connected');
             renderApp();
             updateExportButton();
         }
@@ -309,47 +355,58 @@
         onAuthStateChanged(auth, (user) => {
             state.user = user;
             if (user) {
-                updateStatus('connected');
-                // 1. Listen to PRIVATE (Old) Data
                 const privateRef = collection(db, 'artifacts', appId, 'users', user.uid, 'daily_journal');
                 onSnapshot(privateRef, (snapshot) => {
                     state.entriesUser = snapshot.docs.map(d => ({ id: d.id, ...d.data(), _source: 'private' }));
                     updateCombinedEntries();
-                }, (err) => {
-                    console.error("Private fetch err", err);
-                    updateStatus('error');
-                });
+                }, (err) => {});
 
-                // 2. Listen to PUBLIC (New) Data
                 const publicRef = collection(db, 'artifacts', appId, 'public', 'data', 'daily_journal');
                 onSnapshot(publicRef, (snapshot) => {
                     state.entriesPublic = snapshot.docs.map(d => ({ id: d.id, ...d.data(), _source: 'public' }));
                     updateCombinedEntries();
-                }, (err) => {
-                    console.error("Public fetch err", err);
-                    updateStatus('error');
-                });
-
+                }, (err) => {});
             } else {
-                updateStatus('error'); // No user = can't load data
                 renderApp();
             }
         });
 
-        // Styles
-        const getSubjectConfig = (subj) => {
-            const config = {
-                'Math': 'bg-blue-100 text-blue-700 border-blue-200',
-                'Science': 'bg-emerald-100 text-emerald-700 border-emerald-200',
-                'Language Arts': 'bg-pink-100 text-pink-700 border-pink-200',
-                'History': 'bg-amber-100 text-amber-700 border-amber-200',
-                'Reading': 'bg-teal-100 text-teal-700 border-teal-200',
-                'Art': 'bg-purple-100 text-purple-700 border-purple-200'
-            };
-            return config[subj] || 'bg-slate-100 text-slate-700 border-slate-200';
+        // Timeline Toggle Logic
+        window.toggleTimeline = (show) => {
+            state.timelineVisible = show;
+            const timelinePanel = document.getElementById('timeline-panel');
+            const editorPanel = document.getElementById('editor-panel');
+            const btnShow = document.getElementById('btn-show-timeline');
+
+            if (show) {
+                timelinePanel.classList.remove('hidden');
+                editorPanel.classList.remove('flex-1'); // Reset to default width
+                editorPanel.classList.add('md:w-5/12');
+                btnShow.classList.add('hidden');
+            } else {
+                timelinePanel.classList.add('hidden');
+                editorPanel.classList.remove('md:w-5/12');
+                editorPanel.classList.add('flex-1'); // Expand to fill
+                btnShow.classList.remove('hidden');
+            }
         };
 
-        // Date & View
+        // Styles Map (Bright & Cheerful)
+        const getSubjectConfig = (subj) => {
+            const config = {
+                'Math': { bg: 'bg-blue-100', text: 'text-blue-600', border: 'border-blue-500', icon: 'calculator' },
+                'Science': { bg: 'bg-emerald-100', text: 'text-emerald-600', border: 'border-emerald-500', icon: 'flask-conical' },
+                'Language Arts': { bg: 'bg-pink-100', text: 'text-pink-600', border: 'border-pink-500', icon: 'book-open' },
+                'History': { bg: 'bg-amber-100', text: 'text-amber-600', border: 'border-amber-500', icon: 'scroll' },
+                'Reading': { bg: 'bg-teal-100', text: 'text-teal-600', border: 'border-teal-500', icon: 'book' },
+                'Art': { bg: 'bg-purple-100', text: 'text-purple-600', border: 'border-purple-500', icon: 'palette' },
+                'Music': { bg: 'bg-rose-100', text: 'text-rose-600', border: 'border-rose-500', icon: 'music' },
+                'Technology': { bg: 'bg-cyan-100', text: 'text-cyan-600', border: 'border-cyan-500', icon: 'monitor' }
+            };
+            return config[subj] || { bg: 'bg-slate-100', text: 'text-slate-600', border: 'border-slate-500', icon: 'circle' };
+        };
+
+        // Date Logic
         document.getElementById('prev-date').addEventListener('click', () => changeDate(-1));
         document.getElementById('next-date').addEventListener('click', () => changeDate(1));
         const dateInput = document.getElementById('date-input');
@@ -366,16 +423,15 @@
 
         window.setView = (mode) => {
             state.viewMode = mode;
+            // If switching view mode, ensure timeline is open so they can see results
+            if(!state.timelineVisible) toggleTimeline(true);
             renderApp();
         };
 
-        // Form Submit
+        // Form
         document.getElementById('journal-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            if(!state.user) {
-                alert("Cannot save: Not connected to database.");
-                return;
-            }
+            if(!state.user) return;
 
             const data = {
                 type: document.querySelector('input[name="entryType"]:checked').value,
@@ -391,16 +447,12 @@
 
             try {
                 const collectionName = 'daily_journal';
-
                 if(state.editingId) {
-                    // Update existing
                     await setDoc(doc(db, 'artifacts', appId, 'public', 'data', collectionName, state.editingId), data, { merge: true });
-                    
                     state.editingId = null;
-                    document.getElementById('form-title').innerText = "New Entry";
-                    document.getElementById('save-btn').innerHTML = `<i data-lucide="plus" class="w-5 h-5"></i><span>Save Entry</span>`;
+                    document.getElementById('form-title').innerHTML = `<span class="bg-indigo-100 text-indigo-600 p-2 rounded-xl"><i data-lucide="pen-tool" class="w-6 h-6"></i></span> New Entry`;
+                    document.getElementById('save-btn').innerHTML = `<i data-lucide="plus-circle" class="w-6 h-6"></i><span>Add Entry</span>`;
                 } else {
-                    // New Entry
                     data.createdAt = serverTimestamp();
                     data.order = Date.now();
                     await addDoc(collection(db, 'artifacts', appId, 'public', 'data', collectionName), data);
@@ -411,10 +463,13 @@
                 document.getElementById('input-assignments').value = '';
                 document.getElementById('input-notes').value = '';
                 document.getElementById('cancel-edit-btn').classList.add('hidden');
+                
+                // Ensure timeline is visible to see the new entry
+                if(!state.timelineVisible) toggleTimeline(true);
 
             } catch(err) {
                 console.error(err);
-                alert("Error saving: " + err.message);
+                alert("Error: " + err.message);
             }
         });
 
@@ -424,9 +479,7 @@
             if(!entry) return;
             state.editingId = id;
             
-            if (state.viewMode === 'all') {
-                state.viewMode = 'daily';
-            }
+            if (state.viewMode === 'all') state.viewMode = 'daily';
 
             state.date = entry.date;
             dateInput.value = entry.date;
@@ -441,11 +494,13 @@
             document.getElementById('input-assignments').value = entry.assignments;
             document.getElementById('input-notes').value = entry.notes;
 
-            document.getElementById('form-title').innerText = "Editing Entry";
+            document.getElementById('form-title').innerHTML = `<span class="bg-amber-100 text-amber-600 p-2 rounded-xl"><i data-lucide="pencil" class="w-6 h-6"></i></span> Edit Entry`;
             document.getElementById('save-btn').innerHTML = `<span>Update Entry</span>`;
             document.getElementById('cancel-edit-btn').classList.remove('hidden');
             
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // If timeline was hidden, we probably need to keep it hidden or user pref. 
+            // But we do need to see the form.
+            document.getElementById('editor-panel').scrollTo({ top: 0, behavior: 'smooth' });
             renderApp();
         };
 
@@ -454,15 +509,14 @@
             document.getElementById('input-topic').value = '';
             document.getElementById('input-assignments').value = '';
             document.getElementById('input-notes').value = '';
-            document.getElementById('form-title').innerText = "New Entry";
-            document.getElementById('save-btn').innerHTML = `<i data-lucide="plus" class="w-5 h-5"></i><span>Save Entry</span>`;
+            document.getElementById('form-title').innerHTML = `<span class="bg-indigo-100 text-indigo-600 p-2 rounded-xl"><i data-lucide="pen-tool" class="w-6 h-6"></i></span> New Entry`;
+            document.getElementById('save-btn').innerHTML = `<i data-lucide="plus-circle" class="w-6 h-6"></i><span>Add Entry</span>`;
             document.getElementById('cancel-edit-btn').classList.add('hidden');
         });
 
         window.deleteEntry = async (id) => {
-            if(confirm("Delete this entry?")) {
+            if(confirm("Remove this entry?")) {
                 await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'daily_journal', id)).catch(()=>{});
-                // Also try deleting from private legacy data if it exists there
                 if(state.user) {
                     await deleteDoc(doc(db, 'artifacts', appId, 'users', state.user.uid, 'daily_journal', id)).catch(()=>{});
                 }
@@ -500,50 +554,29 @@
 
         // Render
         function renderApp() {
-            // Render Nav
-            const nav = document.getElementById('desktop-nav');
-            const mobileNav = document.getElementById('mobile-nav');
-            const modes = [
-                { id: 'daily', label: 'Daily', icon: 'layout-grid' },
-                { id: 'weekly', label: 'Weekly', icon: 'calendar' },
-                { id: 'unit', label: 'Unit', icon: 'folder' },
-                { id: 'all', label: 'History', icon: 'history' }
-            ];
+            // Update Active Nav
+            const navIds = ['nav-daily', 'nav-weekly', 'nav-unit', 'nav-all'];
+            navIds.forEach(id => {
+                const el = document.getElementById(id);
+                const isActive = (state.viewMode === id.replace('nav-', ''));
+                if(isActive) {
+                    el.className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-white bg-indigo-500 shadow-md shadow-indigo-200";
+                } else {
+                    el.className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-slate-500 hover:bg-indigo-50 hover:text-indigo-600";
+                }
+            });
 
-            const navHtml = modes.map(m => `
-                <button onclick="setView('${m.id}')" class="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-bold transition-all touch-target ${state.viewMode === m.id ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}">
-                    <i data-lucide="${m.icon}" class="w-4 h-4"></i> ${m.label}
-                </button>
-            `).join('');
-            
-            if(nav.innerHTML !== navHtml) nav.innerHTML = navHtml;
+            // Update Header Date
+            const d = new Date(state.date);
+            const pretty = d.toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric', timeZone: 'UTC' });
+            document.getElementById('date-pretty').innerText = state.viewMode === 'daily' ? pretty : state.viewMode.toUpperCase();
 
-            const mobileNavHtml = modes.map(m => `
-                <button onclick="setView('${m.id}')" class="flex-1 py-4 text-xs font-bold uppercase tracking-wide border-b-2 touch-target ${state.viewMode === m.id ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-400'}">${m.label}</button>
-            `).join('');
-            
-            if(mobileNav.innerHTML !== mobileNavHtml) mobileNav.innerHTML = mobileNavHtml;
+            document.getElementById('feed-subtitle').innerText = state.viewMode === 'all' 
+                ? "All History" 
+                : (state.viewMode === 'daily' ? pretty : `Viewing ${state.viewMode} entries`);
 
-            // Layout Logic
-            const editorPanel = document.getElementById('editor-panel');
-            const viewWrapper = document.getElementById('view-container-wrapper');
-            
-            if (state.viewMode === 'all') {
-                editorPanel.classList.add('hidden');
-                viewWrapper.classList.remove('lg:col-span-8');
-                viewWrapper.classList.add('lg:col-span-12');
-            } else {
-                editorPanel.classList.remove('hidden');
-                viewWrapper.classList.add('lg:col-span-8');
-                viewWrapper.classList.remove('lg:col-span-12');
-            }
 
-            // Feed Content
-            const container = document.getElementById('view-container');
-            
-            // NOTE: We do NOT have a "state.loading" check here anymore.
-            // This ensures the UI is always rendered.
-
+            // Filter
             let filtered = [];
             if(state.viewMode === 'daily') {
                 filtered = state.entries.filter(e => e.date === state.date && (!e.type || e.type === 'daily'));
@@ -555,63 +588,75 @@
                 filtered = state.entries;
             }
 
+            document.getElementById('daily-count').innerText = `${filtered.length}`;
+
+            // Feed Content
+            const container = document.getElementById('view-container');
+
             if(filtered.length === 0) {
-                container.innerHTML = `
-                    <div class="pro-card p-12 text-center border-dashed border-2 border-slate-200 shadow-none">
-                        <div class="text-slate-300 mb-2"><i data-lucide="clipboard-list" class="w-12 h-12 mx-auto"></i></div>
-                        <h3 class="text-slate-600 font-bold">No entries found</h3>
-                        <p class="text-slate-400 text-sm">Use the form to add one.</p>
+                 container.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-center opacity-60">
+                        <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mb-4 text-slate-300 shadow-sm border border-slate-100">
+                            <i data-lucide="sparkles" class="w-8 h-8"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-600 text-lg">Fresh Page</h3>
+                        <p class="text-sm text-slate-400 max-w-xs mx-auto mt-1">Ready for today's adventures. Add an entry to start the timeline!</p>
                     </div>
                 `;
             } else {
                 container.innerHTML = filtered.map(entry => {
                     const style = getSubjectConfig(entry.subject);
-                    const dateTag = state.viewMode === 'all' ? `<div class="text-xs font-bold text-slate-400 uppercase mb-1">${entry.date}</div>` : '';
+                    const dateTag = state.viewMode === 'all' ? `<div class="text-[10px] font-bold text-slate-400 uppercase mb-1">${entry.date}</div>` : '';
+                    
                     return `
-                        <div class="pro-card p-5 group relative transition-transform hover:-translate-y-0.5">
-                            <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                                <button onclick="editEntry('${entry.id}')" class="text-slate-300 hover:text-indigo-600 p-2"><i data-lucide="pencil" class="w-4 h-4"></i></button>
-                                <button onclick="deleteEntry('${entry.id}')" class="text-slate-300 hover:text-red-500 p-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                            </div>
+                        <div class="timeline-item relative pl-10 pb-8 group slide-in">
+                            <!-- Line -->
+                            <div class="timeline-line"></div>
                             
-                            ${dateTag}
-
-                            <div class="flex items-center gap-2 mb-2">
-                                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${style}">
-                                    ${entry.subject}
-                                </span>
-                                <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">
-                                    ${entry.category || 'Activity'}
-                                </span>
+                            <!-- Icon Dot -->
+                            <div class="absolute left-0 top-0 w-12 h-12 rounded-full ${style.bg} ${style.text} flex items-center justify-center border-4 border-white shadow-sm z-10 transition-transform group-hover:scale-110">
+                                <i data-lucide="${style.icon}" class="w-6 h-6"></i>
                             </div>
 
-                            <h3 class="text-lg font-bold text-slate-800 leading-snug mb-3">
-                                ${entry.unit ? `<span class="text-slate-500 font-medium">${entry.unit}:</span> ` : ''}
-                                ${entry.topic}
-                            </h3>
-
-                             ${(entry.assignments || entry.notes) ? `
-                                <div class="space-y-2 pt-3 border-t border-slate-50">
-                                    ${entry.assignments ? `
-                                        <div class="flex items-start gap-3">
-                                            <div class="mt-0.5 text-amber-500 shrink-0"><i data-lucide="check-square" class="w-4 h-4"></i></div>
-                                            <div>
-                                                <div class="text-[10px] font-bold text-slate-400 uppercase">Assignment</div>
-                                                <div class="text-sm font-medium text-slate-700">${entry.assignments}</div>
-                                            </div>
-                                        </div>
-                                    ` : ''}
-                                    ${entry.notes ? `
-                                        <div class="flex items-start gap-3">
-                                            <div class="mt-0.5 text-slate-400 shrink-0"><i data-lucide="message-square" class="w-4 h-4"></i></div>
-                                            <div>
-                                                <div class="text-[10px] font-bold text-slate-400 uppercase">Notes</div>
-                                                <div class="text-sm font-medium text-slate-600 italic">"${entry.notes}"</div>
-                                            </div>
-                                        </div>
-                                    ` : ''}
+                            <!-- Content Card -->
+                            <div class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-lg hover:shadow-indigo-100 transition-all relative">
+                                <div class="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button onclick="editEntry('${entry.id}')" class="text-slate-400 hover:text-indigo-600 p-1"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+                                    <button onclick="deleteEntry('${entry.id}')" class="text-slate-400 hover:text-rose-500 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                                 </div>
-                            ` : ''}
+
+                                ${dateTag}
+                                
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="text-xs font-bold ${style.text} uppercase tracking-wide bg-white px-2 py-0.5 rounded-md border ${style.border} border-opacity-30">${entry.subject}</span>
+                                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wide flex items-center gap-1">
+                                        <div class="w-1 h-1 rounded-full bg-slate-300"></div>
+                                        ${entry.category}
+                                    </span>
+                                </div>
+
+                                <h3 class="text-lg font-bold text-slate-800 mb-3 leading-snug">
+                                    ${entry.unit ? `<span class="text-slate-500 font-medium">${entry.unit}:</span> ` : ''}
+                                    ${entry.topic}
+                                </h3>
+
+                                ${(entry.assignments || entry.notes) ? `
+                                    <div class="bg-slate-50 rounded-xl p-3 space-y-2 text-sm border border-slate-100">
+                                        ${entry.assignments ? `
+                                            <div class="flex gap-2">
+                                                <i data-lucide="check-square" class="w-4 h-4 text-indigo-400 mt-0.5"></i>
+                                                <span class="font-bold text-slate-700">${entry.assignments}</span>
+                                            </div>
+                                        ` : ''}
+                                        ${entry.notes ? `
+                                            <div class="flex gap-2">
+                                                <i data-lucide="sticky-note" class="w-4 h-4 text-amber-400 mt-0.5"></i>
+                                                <span class="italic text-slate-500">"${entry.notes}"</span>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                ` : ''}
+                            </div>
                         </div>
                     `;
                 }).join('');
@@ -619,7 +664,6 @@
             lucide.createIcons();
         }
 
-        // INITIAL RENDER FORCE (So user sees UI immediately)
         renderApp();
     </script>
 </body>
